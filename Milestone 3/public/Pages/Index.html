@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RoboLink</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #545254;
+      font-family: 'Courier New', Courier, monospace;
+      color: #00ff00;
+    }
+
+    .form-container {
+      border: 2px solid #09a307;
+      padding: 2rem;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 0 10px #09a307;
+      background-color: #545254;
+    }
+
+    .form-container h1 {
+      margin-bottom: 1rem;
+    }
+
+    input[type="text"], input[type="number"] {
+      background-color: #000;
+      color: #09a307;
+      border: 1px solid #09a307;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      width: 100%;
+    }
+
+    .connect-btn {
+      background-color: #09a307;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 0.75rem 2rem;
+      margin-top: 1rem;
+      cursor: pointer;
+      font-family: 'Courier New', Courier, monospace;
+      box-shadow: 0 0 5px #00ff00;
+      transition: background-color 0.3s ease;
+    }
+
+    .connect-btn:hover {
+      background-color: #09a350;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h1>Connect to Robot</h1>
+    <form id="connect-form" action="" method="POST">
+      <input type="text" name="ip" placeholder="IP Address" required><br>
+      <input type="number" name="port" placeholder="Port Number" required><br>
+      <button type="submit" onclick="connect()" class="connect-btn">Connect</button>
+    </form>
+  </div>
+</body>
+
+<script src="/Scripts/Command.js"></script>
+
+</html>

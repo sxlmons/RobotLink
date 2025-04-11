@@ -1,0 +1,6 @@
+/Users/campbellwest/Desktop/OldMac/School/Semester 2/Mobile Networks Systems/Final/Milestones/Milestone 2/cmake-build-debug/CMakeFiles/TCPServer.dir
+/Users/campbellwest/Desktop/OldMac/School/Semester 2/Mobile Networks Systems/Final/Milestones/Milestone 2/cmake-build-debug/CMakeFiles/TCPClient.dir
+/Users/campbellwest/Desktop/OldMac/School/Semester 2/Mobile Networks Systems/Final/Milestones/Milestone 2/cmake-build-debug/CMakeFiles/UDPServer.dir
+/Users/campbellwest/Desktop/OldMac/School/Semester 2/Mobile Networks Systems/Final/Milestones/Milestone 2/cmake-build-debug/CMakeFiles/UDPClient.dir
+/Users/campbellwest/Desktop/OldMac/School/Semester 2/Mobile Networks Systems/Final/Milestones/Milestone 2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/campbellwest/Desktop/OldMac/School/Semester 2/Mobile Networks Systems/Final/Milestones/Milestone 2/cmake-build-debug/CMakeFiles/rebuild_cache.dir

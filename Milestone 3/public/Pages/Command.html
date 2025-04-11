@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Send Command</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: 'Courier New', Courier, monospace;
+      color: #00ff00;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      margin-bottom: 2rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-bottom: 2rem;
+      width: 80%;
+      max-width: 800px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    label {
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+
+    select, input[type="number"] {
+      background-color: #000;
+      color: #00ff00;
+      border: 1px solid #00ff00;
+      padding: 0.5rem;
+      width: 100px;
+      text-align: center;
+    }
+
+    .send-btn {
+      background-color: #00ff00;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 0.75rem 2rem;
+      cursor: pointer;
+      font-family: 'Courier New', Courier, monospace;
+      box-shadow: 0 0 5px #00ff00;
+      transition: background-color 0.3s ease;
+    }
+
+    .send-btn:hover {
+      background-color: #00cc00;
+    }
+  </style>
+</head>
+<body>
+
+  <form>
+    <div class="form-grid">
+      <!-- Column 1: Direction -->
+      <div class="form-group">
+        <label for="direction">Direction</label>
+        <select name="direction" id="direction" required>
+          <option value="up">Up</option>
+          <option value="down">Down</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <!-- Column 2: Duration -->
+      <div class="form-group">
+        <label for="duration">Duration</label>
+        <input type="number" id="duration" name="duration" min="1" required>
+      </div>
+
+      <!-- Column 3: Speed -->
+      <div class="form-group">
+        <label for="speed">Speed</label>
+        <input type="number" id="speed" name="speed" min="80" max="100" required>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="send-btn">Send Command</button>
+  </form>
+
+</body>
+</html>
