@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/MS3.dir/main.cpp.o -o MS3  /usr/lib/aarch64-linux-gnu/libboost_system.so.1.83.0 /usr/lib/aarch64-linux-gnu/libboost_filesystem.so.1.83.0 /usr/lib/aarch64-linux-gnu/libboost_atomic.so.1.83.0 

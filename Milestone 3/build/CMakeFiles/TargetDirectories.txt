@@ -1,3 +1,0 @@
-/shared/build/CMakeFiles/MS3.dir
-/shared/build/CMakeFiles/edit_cache.dir
-/shared/build/CMakeFiles/rebuild_cache.dir
