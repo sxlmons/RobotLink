@@ -1,0 +1,44 @@
+# Ignore build directories
+/build/
+*/build/
+
+# Ignore object files and executables
+*.o
+*.obj
+*.exe
+*.out
+*.a
+*.lib
+*.so
+*.dll
+
+# Ignore CMake files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+Makefile
+Makefile.in
+
+# Ignore IDE project files (e.g., for VSCode, CLion, etc.)
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.pro.user
+*.pro.user.*
+
+# Ignore Crow Web Server specific
+/crow_build/
+*.crow
+
+# Ignore other system-specific files
+.DS_Store          # macOS
+Thumbs.db          # Windows
+*.swp              # Vim swap files
+*.swo              # Vim swap files
+*.bak              # Backup files
+
+# Ignore dependency manager files
+/vendor/           # if you have dependencies inside a vendor folder
+*.tar.gz           # or if you are using tarballs
