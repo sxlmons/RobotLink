@@ -68,7 +68,8 @@
 </head>
 <body>
 
-  <form>
+  <form action="/testSend" method="GET">
+
     <div class="form-grid">
       <!-- Column 1: Direction -->
       <div class="form-group">
@@ -84,19 +85,19 @@
       <!-- Column 2: Duration -->
       <div class="form-group">
         <label for="duration">Duration</label>
-        <input type="number" id="duration" name="duration" min="1" required>
+        <input type="number" id="duration" name="duration" min="1">
       </div>
 
       <!-- Column 3: Speed -->
       <div class="form-group">
         <label for="speed">Speed</label>
-        <input type="number" id="speed" name="speed" min="80" max="100" required>
+        <input type="number" id="speed" name="speed" min="80" max="100">
+        <!-- CHANGE BACK TO REQUIRED FOR THIS AND ABOVE -->
       </div>
     </div>
 
     <!-- Submit Button -->
     <button type="submit" class="send-btn">Send Command</button>
   </form>
-
 </body>
 </html>

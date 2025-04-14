@@ -9,5 +9,5 @@ find_package(Boost COMPONENTS system filesystem REQUIRED)
 find_package(Threads)
 
 include_directories(${Boost_INCLUDE_DIRS})
-add_executable(MS3 main.cpp)
+add_executable(MS3 main.cpp Packet/Packet.cpp MySocket/MySocket.cpp)
 target_link_libraries(MS3 ${Boost_LIBRARIES} Threads::Threads)

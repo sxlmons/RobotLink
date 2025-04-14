@@ -8,3 +8,8 @@ function connect() {
     document.getElementById("connect-form").action = action;
     document.getElementById("connect-form").submit();
 }
+
+function clickTest() {
+    document.getElementById("click-test").action = "/testSend";
+    document.getElementById("click-test").submit();
+}
