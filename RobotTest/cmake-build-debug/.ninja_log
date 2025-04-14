@@ -1,0 +1,7 @@
+# ninja log v6
+1	544	1744651214350580771	CMakeFiles/RobotTest.dir/main.cpp.o	1a4406dda474759a
+2	547	1744651214351300305	CMakeFiles/RobotTest.dir/MySocket/MySocket.cpp.o	2b6d31bf182e631
+2	547	1744651214351463470	CMakeFiles/RobotTest.dir/Packet/Packet.cpp.o	15d1c2e24acdbaf7
+547	632	1744651214896622568	RobotTest	85fe8a38512220c8
+4	398	1744651232051418534	CMakeFiles/RobotTest.dir/main.cpp.o	1a4406dda474759a
+399	431	1744651232445801656	RobotTest	85fe8a38512220c8
