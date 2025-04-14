@@ -23,13 +23,23 @@ public:
         unsigned char Sleep : 1;   // 1 bit   --> 1 byte
         unsigned char Ack : 1;     // 1 bit
         unsigned char Padding : 4; // 4 bits
-        unsigned short int Length;   // 8 bits ??
+        //unsigned char Length;
+        unsigned short int Length : 8;
     };
 
     struct DriverBody {
         unsigned char Direction; // 1 byte
         unsigned char Duration;  // 1 byte
         unsigned char Speed;     // 1 byte
+    };
+
+    struct TelemetryBody {
+        unsigned short int LastPktCounter; // 2 bytes
+        unsigned short int CurrentGrade;   // 2 bytes
+        unsigned short int HitCount;       // 2 bytes
+        unsigned char LastCmd;             // 1 byte
+        unsigned char LastCmdValue;        // 1 byte
+        unsigned char LastCmdSpeed;        // 1 byte
     };
 
 private:
@@ -43,8 +53,8 @@ private:
 public:
 
     CmdPacket cmdPacket;
+
     char* RawBuffer;
-    //const int EmptyPktSize = 10; // 10 bytes
 
     const int FORWARD;
     const int BACKWARD;
@@ -52,7 +62,9 @@ public:
     const int RIGHT;
     //const unsigned int HEADERSIZE = 0; // ???
 
-    DriverBody driverBody; // ???
+    DriverBody driverBody;
+
+    TelemetryBody telemetryBody;
 
     PktDef() : RawBuffer(nullptr), FORWARD(1), BACKWARD(2), LEFT(3), RIGHT(4) {
         // TODO A default constructor that places the PktDef object in a safe state, defined as follows:
@@ -85,10 +97,9 @@ public:
 
         // calculate the size of the payload. only either 0 or 3 i believe
         unsigned long payload = cmdPacket.header.Length - sizeof(cmdPacket.header) - sizeof(cmdPacket.CRC);
-        // allocate memory to that size
+
         cmdPacket.Data = new char[payload];
-        // copy the memory from the buff at the current position onward for the length of the payload
-        memcpy(&cmdPacket.Data, &buff[position], payload);
+        memcpy(cmdPacket.Data, &buff[position], payload);
 
         // calculate this packets CRC
         CalcCRC();
@@ -128,6 +139,7 @@ public:
         else if (cmdPacket.header.Sleep == 1)
             return SLEEP;
         // maybe needs a default case
+        return RESPONSE;
     }
 
 // TODO A query function that returns true/false based on the Ack flag in the header
@@ -188,7 +200,8 @@ public:
         memcpy(cmdPacket.Data, data, size);
 
         // set the packets length to the int size of header plus the size of the data plus the int size of the CRC
-        cmdPacket.header.Length = (int)sizeof(cmdPacket.header) + size + (int)sizeof(cmdPacket.CRC);
+
+        cmdPacket.header.Length = sizeof(cmdPacket.header) + size + sizeof(cmdPacket.CRC);
     }
 
 // TODO setter that sets the PktCount variable
@@ -202,28 +215,21 @@ public:
 
 // CURRENTLY NOT WORKING
     bool CheckCRC(char* buff, int size) {
-        // gets the size of the packet not including the CRC
         int packetSize = size - sizeof(cmdPacket.CRC);
 
-        // gets this input datas CRC for comparison
-        char packetCRC = buff[size - sizeof(cmdPacket.CRC)];
+        unsigned char packetCRC = static_cast<unsigned char>(buff[size - sizeof(cmdPacket.CRC)]);
 
         int calculatedCRC = 0;
         for (int i = 0; i < packetSize; i++) {
-            // go through each byte of the buff, buff[i] is the char *byte* at that index
             unsigned char byte = buff[i];
-            // while that byte still has bits to look at
             while (byte) {
-                // at a bit to the CRC if the AND operation is true here
-                // if the byte is 1 and we do the AND with the 1 below it will add a 1 to the count
                 calculatedCRC += byte & 1;
-                // bit shift to the right by 1 to work towards the end of the byte
                 byte >>= 1;
             }
         }
 
         // returns true if they are equal
-        return (calculatedCRC == (int)packetCRC);
+        return (calculatedCRC == packetCRC);
     }
 
     void CalcCRC() {
@@ -240,8 +246,7 @@ public:
                 byte >>= 1;
             }
         }
-
-        // if there is data we are going to check it if not i will have no effect on CRC number
+        // if there is data we are going to check it if not it will have no effect on CRC number
         if (cmdPacket.Data != nullptr)
             for (int i = 0; i < cmdPacket.header.Length - sizeof(cmdPacket.header) - sizeof(cmdPacket.CRC); i++) {
                 unsigned char byte = static_cast<unsigned char>(cmdPacket.Data[i]);
@@ -260,8 +265,8 @@ public:
         // contents from the objects member variables into a RAW data packet (RawBuffer) for
         // transmission. The address of the allocated RawBuffer is returned.
         int headerSize = sizeof(cmdPacket.header);
-        int dataSize = cmdPacket.header.Length - sizeof(cmdPacket.header) - sizeof(cmdPacket.CRC);
         int crcSize = sizeof(cmdPacket.CRC);
+        int dataSize = cmdPacket.header.Length - headerSize - crcSize;
 
         int totalSize = headerSize + dataSize + crcSize;
 
@@ -271,14 +276,18 @@ public:
         }
 
         RawBuffer = new char[totalSize];
-
         int position = 0;
 
         memcpy(&RawBuffer[position], &cmdPacket.header, headerSize);
         position += headerSize;
 
+        //memcpy(&RawBuffer[position], &cmdPacket.header, headerSize - 1);
+        //position += headerSize - 1;
+
+        //RawBuffer[position++] = static_cast<char>(cmdPacket.header.Length & 0xFF);
+
         if (cmdPacket.Data != nullptr) {
-            memcpy(&RawBuffer[position], &cmdPacket.Data, dataSize);
+            memcpy(&RawBuffer[position], cmdPacket.Data, dataSize);
             position += dataSize;
         }
 
@@ -287,50 +296,6 @@ public:
 
         return RawBuffer;
     }
-
-    /*PktDef();
-    PktDef(char* buff);
-
-    void Display(std::ostream& os);
-
-    // TODO *************** GETTERS **************************
-
-    CmdType GetCmd();
-
-    // TODO A query function that returns true/false based on the Ack flag in the header
-    bool GetAck();
-
-    // TODO a query function that returns the packet Length in bytes
-    unsigned int GetLength();
-
-    // TODO a query function that returns a pointer to the objects Body field
-    char* GetBodyData();
-
-    // TODO a query function that returns the PktCount value
-    unsigned int GetPktCount();
-
-    // TODO ******************* SETTERS *****************************
-
-    void SetCmd(CmdType commandType);
-
-    // TODO a set function that takes a pointer to a RAW data buffer
-    // TODO and the size of the buffer in bytes. This function will allocate the packets Body field and
-    // TODO copies the provided data into the objects buffer
-    void SetBodyData(char* data, int size);
-
-    // TODO setter that sets the PktCount variable
-    void SetPktCount(int pktCount);
-
-    // TODO ********************* OTHERS ***************************
-
-    // TODO a function that takes a pointer to a RAW data buffer, the
-    // TODO size of the buffer in bytes, and calculates the CRC. If the calculated CRC matches the
-    // TODO CRC of the packet in the buffer the function returns TRUE, otherwise FALSE.
-    bool CheckCRC(char* buff, int size);
-
-    void CalcCRC();
-
-    char* GenPacket();*/
 
 };
 

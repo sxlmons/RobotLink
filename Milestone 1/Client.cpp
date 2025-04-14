@@ -32,18 +32,19 @@ int main(int argc, char* argv[])
     packet.driverBody.Direction = 1;
     packet.driverBody.Duration = 10;
     packet.driverBody.Speed = 80;
+
     packet.SetBodyData(reinterpret_cast<char*>(&packet.driverBody), sizeof(packet.driverBody));
 
     char* packetBuffer = packet.GenPacket();
 
     PktDef newPacket(packetBuffer);
 
-    if (newPacket.CheckCRC(packetBuffer, sizeof(packetBuffer)))
+    if (newPacket.CheckCRC(packetBuffer, newPacket.GetLength()))
         cout << "TRUE" << endl;
     else cout << "FALSE" << endl;
 
     newPacket.Display(std::cout);
-    sendto(ClientSocket, packetBuffer, packet.cmdPacket.header.Length, 0, (struct sockaddr*)&SvrAddr, sizeof(SvrAddr));
+    sendto(ClientSocket, packetBuffer, packet.GetLength(), 0, (struct sockaddr*)&SvrAddr, sizeof(SvrAddr));
 
     //sendto(ClientSocket, Tx, Size, 0, (struct sockaddr*)&SvrAddr, sizeof(SvrAddr));
 

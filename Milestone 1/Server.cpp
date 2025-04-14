@@ -32,9 +32,14 @@ int main(int argc, char * argv[])
 
     //TODO:  Add the UDP receive here
     char RxBuffer[1024] = {};
-    recvfrom(ServerSocket, RxBuffer, sizeof(RxBuffer), 0, (struct sockaddr*)&CltAddr, &addr_len);
+    recvfrom(ServerSocket, RxBuffer, 1024, 0, (struct sockaddr*)&CltAddr, &addr_len);
 
     PktDef packet(RxBuffer);
+
+    if (packet.CheckCRC(RxBuffer, packet.GetLength()))
+        cout << "True" << endl;
+    else
+        cout << "False" << endl;
 
     packet.Display(std::cout);
 

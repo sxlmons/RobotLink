@@ -184,9 +184,11 @@ void PktDef::CalcCRC() {
         // same logic explain above 
         unsigned char byte = headerBytes[i];
         while (byte) {
+            cout << byte;
             bitCount += byte & 1;
             byte >>= 1;
         }
+        cout << " " << endl;
     }
 
     // if there is data we are going to check it if not i will have no effect on CRC number 
@@ -194,9 +196,11 @@ void PktDef::CalcCRC() {
         for (int i = 0; i < cmdPacket.header.Length - sizeof(cmdPacket.header) - sizeof(cmdPacket.CRC); i++) {
             unsigned char byte = static_cast<unsigned char>(cmdPacket.Data[i]);
             while (byte) {
+                cout << byte;
                 bitCount += byte & 1;
                 byte >>= 1;
             }
+            cout << " " << endl;
         }
 
     // CRC is set to the bitCount casted to a char 
@@ -226,7 +230,7 @@ char* PktDef::GenPacket() {
     position += headerSize;
 
     if (cmdPacket.Data != nullptr) {
-        memcpy(&RawBuffer[position], &cmdPacket.Data, dataSize);
+        memcpy(&RawBuffer[position], cmdPacket.Data, dataSize);
         position += dataSize;
     }
 
