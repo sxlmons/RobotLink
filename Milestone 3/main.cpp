@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 #include "crow_all.h"
 
@@ -16,12 +17,19 @@ void getScript(crow::response &res, string scriptName);
 void getPage(crow::response &res, string page);
 void sendFile(crow::response &res, ifstream &in);
 
+PktDef::CmdType getCommandType(string command);
+
+std::unique_ptr<MySocket> clientSocket;
+int packetCounter;
+
 int main() {
     
     crow::SimpleApp app;
 
     CROW_ROUTE(app, "/")
 	([](const crow::request &req, crow::response &res){ 
+		clientSocket = nullptr;
+		packetCounter = 0;
 		getIndex(res);
 	});
 
@@ -29,50 +37,81 @@ int main() {
     CROW_ROUTE(app, "/connect").methods(crow::HTTPMethod::POST)
 	([](const crow::request& req, crow::response& res) {
 		string ip = req.url_params.get("ip");
-		string port = req.url_params.get("port");
+		int port = std::stoi(std::string(req.url_params.get("port")));
 
-		MySocket client(CLIENT, ip, stoi(port), UDP, 1024);
+		cout << "IP: " << ip << " Port: " << port << endl;
+
+		try {
+			clientSocket = std::make_unique<MySocket>(CLIENT, ip, port, UDP, 1024);
+		} catch(const std::exception& e) {
+			cout << string(e.what());
+			res.code = 501;
+			getIndex(res);
+		}
 
 		getPage(res, "Command");
 	});
 
-	CROW_ROUTE(app, "/testSend")
-	([](const crow::request& req, crow::response& res) {
-	
-		MySocket client(CLIENT, "127.0.0.1", 23500, UDP, 1024);
-	
-		PktDef packet;
-		packet.SetPktCount(1);
-		packet.SetCmd(PktDef::DRIVE);
+    CROW_ROUTE(app, "/telecommand").methods(crow::HTTPMethod::POST)
+    ([](const crow::request& req, crow::response& res) {
 
-		packet.driverBody.Direction = 1;
-		packet.driverBody.Duration = 10;
-		packet.driverBody.Speed = 80;
+		int direction = std::stoi(std::string(req.url_params.get("direction")));
+		int duration = std::stoi(std::string(req.url_params.get("duration")));
+		int speed = std::stoi(std::string(req.url_params.get("speed")));
+		string command = req.url_params.get("command");
+		
+		PktDef packet;
+		packet.SetPktCount(1); // FIX this 
+		
+		packet.SetCmd(getCommandType(command));
+
+		packet.driverBody.Direction = direction;
+		packet.driverBody.Duration = duration;
+		packet.driverBody.Speed = speed;
+
 		packet.SetBodyData(reinterpret_cast<char*>(&packet.driverBody), sizeof(packet.driverBody));
 
 		char* packetBuffer = packet.GenPacket();
 
-		std::cout << "Packet length: " << packet.GetLength() << std::endl;
-		std::cout << "Sending UDP packet..." << std::endl;
-		client.SendData(packetBuffer, packet.GetLength());
+		clientSocket->SendData(packetBuffer, packet.GetLength());
 
-		cout << "FINISHED HERE" << endl;
-		getPage(res, "Command");
-	});
-
-/*
-    CROW_ROUTE(app, "/telecommand/").methods(crow::HTTPMethod::POST)
-    ([]() {
-
-
+		char buff[1024];
+		clientSocket->GetData(buff);
+		PktDef responsePacket(buff);
+		//direction, duration, speed, command
+		res.write(responsePacket.CreateResponseMessage(direction, duration, speed, command));
+		res.end();
     });
 
-    CROW_ROUTE(app, "/telemetry_request/")
-    ([]() {
-        
+    CROW_ROUTE(app, "/telemetry_request").methods(crow::HTTPMethod::GET)
+    ([](const crow::request& req, crow::response& res) {
+        PktDef packet;
+		packet.SetPktCount(1);
+		// figure out packet counter 
+		packet.SetCmd(PktDef::RESPONSE);
 
+		packet.SetBodyData(reinterpret_cast<char*>(&packet.driverBody), sizeof(packet.driverBody));
+
+		char* packetBuffer = packet.GenPacket();
+
+		clientSocket->SendData(packetBuffer, packet.GetLength());
+
+		char buff[1024];
+		clientSocket->GetData(buff);
+		PktDef responsePacket(buff);
+
+		if (responsePacket.cmdPacket.header.Ack == 1) {
+			char buffTele[1024];
+			clientSocket->GetData(buffTele);
+			PktDef telePacket(buffTele);
+			res.write(telePacket.GetTelemetryData());
+			res.end();
+		}
+
+		res.write("Bad Telemetry Packet");
+		res.end();
     });
-*/
+
 	CROW_ROUTE(app, "/Scripts/<string>")
 	([](const crow::request &req, crow::response &res, string scriptName) {
 		getScript(res, scriptName);
@@ -81,6 +120,18 @@ int main() {
     app.port(23500).multithreaded().run();
 
     return 1;
+}
+
+PktDef::CmdType getCommandType(string command) {
+
+	if (command == "drive")
+		return PktDef::DRIVE;
+	else if (command == "sleep")
+		return PktDef::SLEEP;
+	else  
+		return PktDef::RESPONSE;
+	
+	// returns response as default becuase it doesnt mess with anything 
 }
 
 void getIndex(crow::response &res) {

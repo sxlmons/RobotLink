@@ -2,26 +2,6 @@
 
 using namespace std;
 
-void PktDef::DisplayTelemetry(std::ostream& os) {
-    // Check that the telemetry payload exists.
-    if (cmdPacket.Data == nullptr) {
-        os << "No telemetry data available.\n";
-        return;
-    }
-
-    // If you've stored the telemetry payload in your telemetryBody member,
-    // you can use that directly. (Make sure your TelemetryBody structure is packed
-    // to match the on-wire layout.)
-    os << "Telemetry Body:\n";
-    os << "  LastPktCounter: " << telemetryBody.LastPktCounter << "\n";
-    os << "  CurrentGrade:   " << telemetryBody.CurrentGrade << "\n";
-    os << "  HitCount:       " << telemetryBody.HitCount << "\n";
-    os << "  LastCmd:        " << static_cast<int>(telemetryBody.LastCmd) << "\n";
-    os << "  LastCmdValue:   " << static_cast<int>(telemetryBody.LastCmdValue) << "\n";
-    os << "  LastCmdSpeed:   " << static_cast<int>(telemetryBody.LastCmdSpeed) << "\n";
-}
-
-
 PktDef::PktDef() : RawBuffer(nullptr), FORWARD(1), BACKWARD(2), LEFT(3), RIGHT(4) {
     // TODO A default constructor that places the PktDef object in a safe state, defined as follows:
 
@@ -50,42 +30,121 @@ PktDef::PktDef(char* buff) : FORWARD(1), BACKWARD(2), LEFT(3), RIGHT(4) {
 
     // Calculate payload size: header.Length is the total packet length (header + payload + CRC)
     int payload = cmdPacket.header.Length - (sizeof(cmdPacket.header) + sizeof(cmdPacket.CRC));
-    cout << "Size of Tele Body: " << sizeof(telemetryBody) << endl;
+    
     // Based on the payload size determine which packet type it is.
     if (payload <= 0) {
         // Case 1: No payload data.
         cmdPacket.Data = nullptr;
-        cout << "in here 1" << endl;
+        
     }
-    else if (payload == DRIVER_BODYSIZE) {
-        // Case 2: Data payload is 3 bytes for DriveBody.
+    else if (payload == DRIVER_BODYSIZE) { // believe this is never used 
+        
         cmdPacket.Data = new char[payload];
         memcpy(cmdPacket.Data, &buff[position], payload);
-        // Optionally copy into your driver body structure:
+
         memcpy(&driverBody, cmdPacket.Data, payload);
         position += payload;
-        cout << "in here 2" << endl;
     }
     else if (payload == TELEMETRY_BODYSIZE) {
-        // Case 3: Data payload is 9 bytes for TelemetryBody.
         cmdPacket.Data = new char[payload];
         memcpy(cmdPacket.Data, &buff[position], payload);
-        // Instead of copying over to a separate structure beforehand,
-        // you can now fill your telemetryBody member:
         memcpy(&telemetryBody, cmdPacket.Data, payload);
         position += payload;
-        cout << "in here 3" << endl;
     }
     else {
         // Unknown payload size: you can handle this as an error, set Data to nullptr, etc.
         cmdPacket.Data = nullptr;
-        cout << "in here 4" << endl;
     }
 
     // Finally, read (or recalc) the CRC.
     CalcCRC();
 }
 
+string PktDef::CreateResponseMessage(int direction, int duration, int speed, string command) {
+
+    if (!(cmdPacket.header.Ack == 1)) 
+        return "NACK Packet";
+
+    std::ostringstream os;
+
+    if (command == "drive") {
+        os << "Driving " << printDriveDirection(direction) << 
+        " for " << duration << "s at " << speed << "\% speed.";
+        return os.str();
+    } else if (command == "sleep") {
+        os << "Sleeping Robot.";
+        return os.str();
+    } else {
+        os << "Bad Command";
+        return os.str();
+    }
+}
+
+string PktDef::printDriveDirection(int dir) {
+    switch (dir) {
+        case 1:
+            return "forward";
+        case 2:
+            return "backwards";
+        case 3:
+            return "right";
+        case 4:
+            return "left";
+        default:
+            return "UNKNOWN";
+    }
+}
+
+void PktDef::Display() {
+    int payload = cmdPacket.header.Length - (sizeof(cmdPacket.header) + sizeof(cmdPacket.CRC));
+    cout << "Payload size: " << payload << endl;
+    switch(payload) {
+        case 0:
+            DisplayGoodAckNoStatus(std::cout);
+            break;
+        case 9:
+            DisplayTelemetry(std::cout);
+            break;
+        default:
+            cout << "Invalid payload length" << endl;
+            break;
+    }
+}
+
+void PktDef::DisplayTelemetry(std::ostream& os) {
+    // Check that the telemetry payload exists.
+    if (cmdPacket.Data == nullptr) {
+        os << "No telemetry data available.\n";
+        return;
+    }
+
+    os << "Telemetry Body:\n";
+    os << "  LastPktCounter: " << telemetryBody.LastPktCounter << "\n";
+    os << "  CurrentGrade:   " << telemetryBody.CurrentGrade << "\n";
+    os << "  HitCount:       " << telemetryBody.HitCount << "\n";
+    os << "  LastCmd:        " << static_cast<int>(telemetryBody.LastCmd) << "\n";
+    os << "  LastCmdValue:   " << static_cast<int>(telemetryBody.LastCmdValue) << "\n";
+    os << "  LastCmdSpeed:   " << static_cast<int>(telemetryBody.LastCmdSpeed) << "\n";
+}
+
+string PktDef::GetTelemetryData() {
+    std::ostringstream os;
+
+    if (cmdPacket.Data == nullptr) {
+        os << "No telemetry data available.\n";
+        return os.str();
+    }
+
+    os << "Telemetry Body:\n";
+    os << "  LastPktCounter: " << telemetryBody.LastPktCounter << "\n";
+    os << "  CurrentGrade:   " << telemetryBody.CurrentGrade << "\n";
+    os << "  HitCount:       " << telemetryBody.HitCount << "\n";
+    os << "  LastCmd:        " << static_cast<int>(telemetryBody.LastCmd) << "\n";
+    os << "  LastCmdValue:   " << static_cast<int>(telemetryBody.LastCmdValue) << "\n";
+    os << "  LastCmdSpeed:   " << static_cast<int>(telemetryBody.LastCmdSpeed) << "\n";
+
+    return os.str();
+}
 
 void PktDef::DisplayGoodAckNoStatus(std::ostream& os) {
     os << std::dec;
@@ -96,24 +155,6 @@ void PktDef::DisplayGoodAckNoStatus(std::ostream& os) {
     os << "Ack Flag:      " << (int)cmdPacket.header.Ack << std::endl;
     os << "Length:        " << (int)cmdPacket.header.Length << std::endl;
 
-    os << endl;
-    os << "CRC:           " << (int)cmdPacket.CRC << std::endl;
-}
-
-// Function that can be called after a packet is constructed to print out all values in it
-void PktDef::Display(std::ostream& os) {
-
-    os << std::dec;
-    os << "Packet Count:  " << (int)cmdPacket.header.PktCount << std::endl;
-    os << "Drive Flag:    " << (int)cmdPacket.header.Drive << std::endl;
-    os << "Stats Flag:    " << (int)cmdPacket.header.Status << std::endl;
-    os << "Sleep Flag:    " << (int)cmdPacket.header.Sleep << std::endl;
-    os << "Ack Flag:      " << (int)cmdPacket.header.Ack << std::endl;
-    os << "Length:        " << (int)cmdPacket.header.Length << std::endl;
-    os << endl;
-    os << "Direction:     " << (int)cmdPacket.Data[0] << std::endl;
-    os << "Duration:      " << (int)cmdPacket.Data[1] << std::endl;
-    os << "Speed:         " << (int)cmdPacket.Data[2] << std::endl;
     os << endl;
     os << "CRC:           " << (int)cmdPacket.CRC << std::endl;
 }

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
+#include <sstream>
 
 class PktDef {
 public:
@@ -72,10 +73,13 @@ public:
     PktDef(char* buff);
 
     void DisplayTelemetry(std::ostream& os);
-
     void DisplayGoodAckNoStatus(std::ostream& os);
+    void Display();
 
-    void Display(std::ostream& os);
+    std::string GetTelemetryData();
+
+    std::string CreateResponseMessage(int direction, int duration, int speed, std::string command);
+    std::string printDriveDirection(int dir);
 
     // TODO *************** GETTERS **************************
 

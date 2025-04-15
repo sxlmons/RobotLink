@@ -9,9 +9,6 @@
 #include <unistd.h>
 #include <sys/socket.h>
 
-// FOR DOCKER TO VM 
-#include <netdb.h>
-
 enum SocketType {
     CLIENT,
     SERVER
