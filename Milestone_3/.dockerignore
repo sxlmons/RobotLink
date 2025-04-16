@@ -1,0 +1,24 @@
+# Ignore build directories and build artifacts
+build/
+cmake-build-debug/
+CMakeFiles/
+CMakeCache.txt
+*.o
+*.a
+*.so
+*.out
+*.exe
+
+# Ignore git directory
+.git/
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Ignore Docker files from being copied into Docker
+Dockerfile
+docker-compose.yml
+.dockerignore

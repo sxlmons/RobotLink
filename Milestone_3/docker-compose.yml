@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  robot-control:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "23500:23500"
+    volumes:
+      - ./public:/app/build/public
+    restart: unless-stopped
+    # For networking with the robot simulator if running on the host
+    network_mode: "host"
