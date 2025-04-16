@@ -1,8 +1,14 @@
-# Ignore build directories
+# Build directories
 /build/
 */build/
+**/cmake-build-debug/
+**/cmake-build-release/
+**/CMakeFiles/
+**/CMakeScripts/
+**/CMakeCache.txt
+**/compile_commands.json
 
-# Ignore object files and executables
+# Binary files and executables
 *.o
 *.obj
 *.exe
@@ -11,34 +17,54 @@
 *.lib
 *.so
 *.dll
+*.dylib
+*.app
 
-# Ignore CMake files
-CMakeCache.txt
-CMakeFiles/
-CMakeScripts/
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# CMake generated files
+CMakeLists.txt.user
 cmake_install.cmake
-Makefile
-Makefile.in
+install_manifest.txt
+CTestTestfile.cmake
+_deps
 
-# Ignore IDE project files (e.g., for VSCode, CLion, etc.)
+# IDE files
 .vscode/
 .idea/
+*.swp
+*.swo
 *.sublime-project
 *.sublime-workspace
-*.pro.user
-*.pro.user.*
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+xcuserdata/
+*.pbxproj
+*.xcworkspace
+*.xcodeproj
 
-# Ignore Crow Web Server specific
+# System files
+.DS_Store
+Thumbs.db
+*.bak
+*~
+
+# Project specific
+Milestone*/bin/
+RobotTest/bin/
+**/Debug/
+**/Release/
+**/x64/
+**/x86/
+
+# Crow specific
+/crow/
 /crow_build/
 *.crow
-
-# Ignore other system-specific files
-.DS_Store          # macOS
-Thumbs.db          # Windows
-*.swp              # Vim swap files
-*.swo              # Vim swap files
-*.bak              # Backup files
-
-# Ignore dependency manager files
-/vendor/           # if you have dependencies inside a vendor folder
-*.tar.gz           # or if you are using tarballs
