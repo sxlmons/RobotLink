@@ -39,8 +39,6 @@ int main() {
 		string ip = req.url_params.get("ip");
 		int port = std::stoi(std::string(req.url_params.get("port")));
 
-		cout << "IP: " << ip << " Port: " << port << endl;
-
 		try {
 			clientSocket = std::make_unique<MySocket>(CLIENT, ip, port, UDP, 1024);
 		} catch(const std::exception& e) {
@@ -61,7 +59,8 @@ int main() {
 		string command = req.url_params.get("command");
 		
 		PktDef packet;
-		packet.SetPktCount(1); // FIX this 
+		packetCounter++;
+		packet.SetPktCount(packetCounter); // FIX this 
 		
 		packet.SetCmd(getCommandType(command));
 
@@ -86,7 +85,8 @@ int main() {
     CROW_ROUTE(app, "/telemetry_request").methods(crow::HTTPMethod::GET)
     ([](const crow::request& req, crow::response& res) {
         PktDef packet;
-		packet.SetPktCount(1);
+		packetCounter++;
+		packet.SetPktCount(packetCounter);
 		// figure out packet counter 
 		packet.SetCmd(PktDef::RESPONSE);
 
