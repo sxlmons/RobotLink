@@ -42,6 +42,16 @@ In this milestone, we integrate the **PktDef** and **MySocket** classes into a R
 
 ### Command and Control GUI Features
 - **Docker Container**: The web server runs inside a Docker container for ease of deployment.
+
+- **Using Docker**:
+Make sure Docker is installed and running
+Run the provided script:
+```sh
+chmod +x run_docker.sh
+./run_docker.sh
+```
+Access the web interface at http://localhost:23500/
+
 - **Routes**:
   - `/`: Returns the main GUI interface for robot control.
   - `/connect`: Takes IP address and port number to configure communication with the robot.
