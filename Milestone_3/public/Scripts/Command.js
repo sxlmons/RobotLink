@@ -1,3 +1,5 @@
+
+// creates the connect POST request URL
 function connect() {
     var action = "/connect";
     var ip = document.getElementById("ip").value;
@@ -9,14 +11,14 @@ function connect() {
     document.getElementById("connect-form").submit();
 }
 
+// calls POST fetch and changes displays based on response
 function sendCommand(command) {
 
     const form = document.getElementById("command-form");
 
-    // Check HTML5 validity
     if (!form.checkValidity()) {
-        form.reportValidity(); // Show validation messages
-        return; // Don't submit if invalid
+        form.reportValidity();
+        return; 
     }
 
     var action = "/telecommand";
@@ -27,9 +29,6 @@ function sendCommand(command) {
     action += "?direction=" + dir + "&duration=" + dur + 
                 "&speed=" + speed + "&command=" + command;
 
-    //document.getElementById("command-form").action = action;
-    //document.getElementById("command-form").submit();
-
     document.getElementById("displayBox").innerText = `Sending ${command} command...`;
 
     fetch(action, { method: "POST" })
@@ -37,7 +36,7 @@ function sendCommand(command) {
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status}`);
             }
-            return response.text(); // assuming your server returns a string
+            return response.text();
         })
         .then(data => {
             document.getElementById("displayBox").innerText = data || "No response from server.";
@@ -47,6 +46,7 @@ function sendCommand(command) {
         });
 }
 
+// calls GET fetch and changes displays based on response 
 function getTelemetry() {
     document.getElementById("displayBox").innerText = "Requesting telemetry data...";
   
