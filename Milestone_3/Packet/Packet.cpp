@@ -23,17 +23,12 @@ PktDef::PktDef() : RawBuffer(nullptr), FORWARD(1), BACKWARD(2), LEFT(3), RIGHT(4
 PktDef::PktDef(char* buff) : FORWARD(1), BACKWARD(2), LEFT(3), RIGHT(4) {
     int position = 0;
 
-    // Deserialize the header.
-    // (Assuming your on-wire header layout is identical to your internal representation.)
     memcpy(&cmdPacket.header, buff, sizeof(cmdPacket.header));
     position += sizeof(cmdPacket.header);
 
-    // Calculate payload size: header.Length is the total packet length (header + payload + CRC)
     int payload = cmdPacket.header.Length - (sizeof(cmdPacket.header) + sizeof(cmdPacket.CRC));
     
-    // Based on the payload size determine which packet type it is.
     if (payload <= 0) {
-        // Case 1: No payload data.
         cmdPacket.Data = nullptr;
         
     }
@@ -52,11 +47,10 @@ PktDef::PktDef(char* buff) : FORWARD(1), BACKWARD(2), LEFT(3), RIGHT(4) {
         position += payload;
     }
     else {
-        // Unknown payload size: you can handle this as an error, set Data to nullptr, etc.
+        // Unknown payload size
         cmdPacket.Data = nullptr;
     }
 
-    // Finally, read (or recalc) the CRC.
     CalcCRC();
 }
 
